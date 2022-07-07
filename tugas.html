@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Bootstrap demo</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous" />
+	</head>
+	<body>
+		<div class="container mt-2">
+			<!-- Card -->
+			<div class="card">
+				<div class="card-body">
+					<form>
+						<div class="row justify-content-center">
+							<div class="col-6 align-self-center">
+								<div class="mb-3">
+									<label for="exampleFormControlInput1" class="form-label">Nama</label>
+									<input type="text" class="form-control" id="input-name" placeholder="isi nama" required />
+									<div id="invalid-feedback-name" class="invalid-feedback">Nama Tidak Boleh Kosong</div>
+								</div>
+								<div class="mb-3">
+									<label for="exampleFormControlInput1" class="form-label">Alamat</label>
+									<input type="text" class="form-control" id="input-alamat" placeholder="isi alamat" />
+									<div id="invalid-feedback-alamat" class="invalid-feedback">Alamat Tidak boleh kosong</div>
+								</div>
+								<div class="mb-3">
+									<label for="exampleFormControlInput1" class="form-label">No Tlp</label>
+									<input type="text" class="form-control" id="input-tlp" placeholder="maximal panjang nomor 12" onkeyup="validasiNoTlp(this)" />
+									<div id="invalid-feedback-tlp" class="invalid-feedback"></div>
+								</div>
+								<div class="mb-3">
+									<label for="exampleFormControlInput1" class="form-label">Email</label>
+									<input type="text" class="form-control" id="input-email" placeholder="isi email anda" />
+									<div id="invalid-feedback-email" class="invalid-feedback"></div>
+								</div>
+								<div class="mb-2 form-check">
+									<input class="form-check-input" type="checkbox" id="checkbox" value="backend" />
+									<label class="form-check-label" for="checkbox-backend"> Backend Enginer </label>
+								</div>
+								<div class="mb-2 form-check">
+									<input class="form-check-input" type="checkbox" id="checkbox" value="frontend" />
+									<label class="form-check-label" for="checkbox-frontend"> Frontend Enginer </label>
+									<div id="invalid-feedback-checkbox" class="invalid-feedback"></div>
+								</div>
+								<div class="col-2">
+									<button class="btn btn-primary" type="button" onclick="formSubmit(this)">Submit</button>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<!-- end card -->
+
+			<!-- table -->
+			<table class="table table-dark table-striped table-hover mt-5">
+				<thead>
+					<tr>
+						<th>Nama</th>
+						<th>Alamat</th>
+						<th>No Tlp</th>
+						<th>Email</th>
+						<th>Posisi</th>
+					</tr>
+				</thead>
+				<tbody id="table-data"></tbody>
+			</table>
+			<!-- end table -->
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+		<script>
+			function formSubmit(e) {
+				let inputTag = document.getElementsByTagName("input");
+
+				let isInvalid = document.querySelectorAll(".is-invalid");
+
+				isInvalid.forEach((e) => {
+					e.classList.remove("is-invalid");
+				});
+
+				let tableData = document.getElementById("table-data");
+				let tr = document.createElement("tr");
+
+				for (let i = 0; i < inputTag.length; i++) {
+					if (inputTag[i].id == "checkbox") continue;
+
+					let td = document.createElement("td");
+					let nodeValue = document.createTextNode(inputTag[i].value);
+
+					if (inputTag[i].value == "") inputTag[i].classList.add("is-invalid");
+
+					if (inputTag[i].id == "input-tlp") {
+						if (inputTag[i].value == "") document.getElementById("invalid-feedback-tlp").innerHTML = "field nomort tlp tidak boleh kosong";
+
+						// let patternOld = /\+62+\d{10,11}/
+
+						if (!inputTag[i].value.match(/\+62+\d{10,11}$/)) {
+							inputTag[i].classList.add("is-invalid");
+
+							document.getElementById("invalid-feedback-tlp").innerHTML = "nomor telepon anda tidak valid periksa kembali nomor telepon anda. pastikan menggunakna +62 didepan nomor telepon";
+						}
+					}
+					if (inputTag[i].id == "input-email") {
+						if (inputTag[i].classList.contains("is-invalid")) {
+							document.getElementById("invalid-feedback-email").innerHTML = "field email masih kosong";
+						} else {
+							let pattern = /^([\. \_ a-zA-Z0-9]+)@(\w+)\.([a-zA-Z]){2,5}/g;
+							if (!pattern.test(inputTag[i].value)) {
+								inputTag[i].classList.add("is-invalid");
+								document.getElementById("invalid-feedback-email").innerHTML = "email anda tidak valid";
+							}
+						}
+					}
+
+					td.appendChild(nodeValue);
+					tr.appendChild(td);
+					inputTag[i].value = "";
+				}
+
+				let checkbox = document.querySelectorAll("#checkbox");
+
+				let check = [];
+				checkbox.forEach((e) => {
+					if (e.checked) check.push(e.value);
+				});
+
+				if (check.length < 1) {
+					document.getElementById("invalid-feedback-checkbox").innerHTML = "pilih setidak nya salah satu dari checkbox";
+					checkbox.forEach((e) => e.classList.add("is-invalid"));
+				} else {
+					let td = document.createElement("td");
+					check.length > 1 ? (td.innerHTML = check.join()) : (td.innerHTML = check[0]);
+					tr.appendChild(td);
+				}
+
+				checkbox.forEach((e) => {
+					e.checked = false;
+				});
+
+				if (document.querySelectorAll(".is-invalid").length > 0) return;
+
+				tableData.appendChild(tr);
+			}
+
+			function validasiNoTlp(e) {
+				e.classList.remove("is-invalid");
+
+				if (e.value.match(/([a-z A-Z~`!@#$%^&*()_=|\\\]\[\{\}'":;?/\.>,<-])/g)) {
+					e.classList.add("is-invalid");
+					document.getElementById("invalid-feedback-tlp").innerHTML = "isi dengan angka";
+					let valueBaru = e.value.replace(/[^\d\+]/gi, "").toString();
+					return (e.value = valueBaru);
+				}
+			}
+
+			function feedBackMessage(id, message) {}
+		</script>
+	</body>
+</html>
