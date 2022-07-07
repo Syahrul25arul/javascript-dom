@@ -35,11 +35,11 @@
 									<div id="invalid-feedback-email" class="invalid-feedback"></div>
 								</div>
 								<div class="mb-2 form-check">
-									<input class="form-check-input" type="checkbox" id="checkbox" value="backend" />
+									<input class="form-check-input" type="checkbox" id="input-checkbox" value="backend" />
 									<label class="form-check-label" for="checkbox-backend"> Backend Enginer </label>
 								</div>
 								<div class="mb-2 form-check">
-									<input class="form-check-input" type="checkbox" id="checkbox" value="frontend" />
+									<input class="form-check-input" type="checkbox" id="input-checkbox" value="frontend" />
 									<label class="form-check-label" for="checkbox-frontend"> Frontend Enginer </label>
 									<div id="invalid-feedback-checkbox" class="invalid-feedback"></div>
 								</div>
@@ -71,75 +71,106 @@
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
 		<script>
 			function formSubmit(e) {
+				// tangkap semua tag input
 				let inputTag = document.getElementsByTagName("input");
 
+				// tangkap semua tag yang mempunyai kelas invalid
 				let isInvalid = document.querySelectorAll(".is-invalid");
 
 				isInvalid.forEach((e) => {
+					// saat di submit, hapus terlebih dahulu kelas is-invalid agar memulai validasi dari awal
 					e.classList.remove("is-invalid");
 				});
 
+				// tangkap tbody dari table untuk nanti dimasukkan data
 				let tableData = document.getElementById("table-data");
+
+				// buat element tr untuk nanti di masukkan ke dalam tr
 				let tr = document.createElement("tr");
 
 				for (let i = 0; i < inputTag.length; i++) {
-					if (inputTag[i].id == "checkbox") continue;
+					// jika yang di loop sekarang input checkbox, looping akan dilanjutkan ke iterasi berikutnya
+					// karna validasi checkbox dilakukan terpisah dari looping ini
+					if (inputTag[i].id == "input-checkbox") continue;
 
+					// buat element td untuk nanti dimasukkan ke dalam element tr yang tadi dibuat
 					let td = document.createElement("td");
+
+					// buat textnode yang akan dimasukkan ke element td barusan
+					// dengan value dari input yang saat ini di iterasi
 					let nodeValue = document.createTextNode(inputTag[i].value);
 
+					// jika value dari input saat yang di iterasi saat ini kosong, maka berikan kelasi is-invalid
+					// kelas is-invalid diberikan agar memberikan alert dan tanda merah sebagai tanda bahwa form yang di submit tidak valid
 					if (inputTag[i].value == "") inputTag[i].classList.add("is-invalid");
 
 					if (inputTag[i].id == "input-tlp") {
-						if (inputTag[i].value == "") document.getElementById("invalid-feedback-tlp").innerHTML = "field nomort tlp tidak boleh kosong";
+						// jika value input tlp kosong maka berikan alert
+						if (inputTag[i].value == "") feedBackMessage(inputTag[i].id, "field nomort tlp tidak boleh kosong");
 
 						// let patternOld = /\+62+\d{10,11}/
 
+						// jika value darin input tlp tidak sesuai dengan pattern yang di tentukan, berikan alert
 						if (!inputTag[i].value.match(/\+62+\d{10,11}$/)) {
 							inputTag[i].classList.add("is-invalid");
 
-							document.getElementById("invalid-feedback-tlp").innerHTML = "nomor telepon anda tidak valid periksa kembali nomor telepon anda. pastikan menggunakna +62 didepan nomor telepon";
+							feedBackMessage(inputTag[i].id, "nomor telepon anda tidak valid periksa kembali nomor telepon anda. pastikan menggunakna +62 didepan nomor telepon");
 						}
 					}
+
 					if (inputTag[i].id == "input-email") {
-						if (inputTag[i].classList.contains("is-invalid")) {
-							document.getElementById("invalid-feedback-email").innerHTML = "field email masih kosong";
-						} else {
+						// jika input email mempunyai kelasi is-invalid, maka berikan alert
+						// kelas is-invalid pada email ini terjadi karna value kosong, di berikan pada kode baris 106
+						if (inputTag[i].classList.contains("is-invalid")) feedBackMessage(inputTag[i].id, "field email masih kosong");
+						else {
 							let pattern = /^([\. \_ a-zA-Z0-9]+)@(\w+)\.([a-zA-Z]){2,5}/g;
+
+							// jika value dari input email tidak sesuai dengan pattern yang di tentukan, berikan alert
 							if (!pattern.test(inputTag[i].value)) {
 								inputTag[i].classList.add("is-invalid");
-								document.getElementById("invalid-feedback-email").innerHTML = "email anda tidak valid";
+
+								feedBackMessage(inputTag[i].id, "email anda tidak valid");
 							}
 						}
 					}
 
+					// memasukkan element td yang mempunyai value dari input yang telah di iterasi dan dimasukkan kedalam element tr
 					td.appendChild(nodeValue);
 					tr.appendChild(td);
+
+					// kosongkan kembali value dari setiap input
 					inputTag[i].value = "";
 				}
 
-				let checkbox = document.querySelectorAll("#checkbox");
+				// ambil semua input yang mempunyai id input-checkbox
+				let checkbox = document.querySelectorAll("#input-checkbox");
 
-				let check = [];
+				let checkValue = [];
 				checkbox.forEach((e) => {
-					if (e.checked) check.push(e.value);
+					// jika setiap input yang di iterasi di centang, masukkan value kedalam array checkValue
+					if (e.checked) checkValue.push(e.value);
 				});
 
-				if (check.length < 1) {
-					document.getElementById("invalid-feedback-checkbox").innerHTML = "pilih setidak nya salah satu dari checkbox";
+				// jika panjang dari array checkValue 0, berikan alert
+				if (checkValue.length < 1) {
+					feedBackMessage("input-checkbox", "pilih setidak nya salah satu dari checkbox");
 					checkbox.forEach((e) => e.classList.add("is-invalid"));
 				} else {
+					// jika panjang dari array checkValue lebih dari 0, maka buat element td dan tr, dan masukkan value dari array checkValue
 					let td = document.createElement("td");
-					check.length > 1 ? (td.innerHTML = check.join()) : (td.innerHTML = check[0]);
+					checkValue.length > 1 ? (td.innerHTML = checkValue.join()) : (td.innerHTML = checkValue[0]);
 					tr.appendChild(td);
 				}
 
+				// hapus kembali centang dari checkbox setelah di lakukan validasi
 				checkbox.forEach((e) => {
 					e.checked = false;
 				});
 
+				// jika masih ada input yang belum valid, maka jangan masukkan data kedalam table
 				if (document.querySelectorAll(".is-invalid").length > 0) return;
 
+				// jika semua input valid, maka masukkan data kedalam table
 				tableData.appendChild(tr);
 			}
 
@@ -148,13 +179,16 @@
 
 				if (e.value.match(/([a-z A-Z~`!@#$%^&*()_=|\\\]\[\{\}'":;?/\.>,<-])/g)) {
 					e.classList.add("is-invalid");
-					document.getElementById("invalid-feedback-tlp").innerHTML = "isi dengan angka";
+					feedBackMessage(e.id, "isi dengan angka");
 					let valueBaru = e.value.replace(/[^\d\+]/gi, "").toString();
 					return (e.value = valueBaru);
 				}
 			}
 
-			function feedBackMessage(id, message) {}
+			function feedBackMessage(id, message) {
+				let getId = id.split("-");
+				document.getElementById(`invalid-feedback-${getId[1]}`).innerHTML = message;
+			}
 		</script>
 	</body>
 </html>
